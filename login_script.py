@@ -34,22 +34,24 @@ async def login(username, password, panel):
 
         page = await browser.newPage()
         url = f'https://{panel}/login/?next=/'
-        await page.goto(url)
+        await page.goto(url, {'waitUntil': 'networkidle2'})
 
-        username_input = await page.querySelector('#id_username')
-        if username_input:
-            await page.evaluate('''(input) => input.value = ""''', username_input)
+        await page.waitForSelector('#id_username', {'visible': True, 'timeout': 10000})
+        await page.waitForSelector('#id_password', {'visible': True, 'timeout': 10000})
+        await page.waitForSelector('button.button--primary', {'visible': True, 'timeout': 10000})
+
+        # 清空旧值（可选）
+        await page.evaluate('''() => {
+            document.querySelector('#id_username').value = "";
+            document.querySelector('#id_password').value = "";
+        }''')
 
         await page.type('#id_username', username)
         await page.type('#id_password', password)
 
-        login_button = await page.querySelector('button.button--primary')
-        if login_button:
-            await login_button.click()
-        else:
-            raise Exception('无法找到登录按钮')
+        await page.click('button.button--primary')
 
-        await page.waitForNavigation()
+        await page.waitForNavigation({'waitUntil': 'networkidle2', 'timeout': 15000})
 
         is_logged_in = await page.evaluate('''() => {
             const logoutButton = document.querySelector('a[href="/logout/"]');
