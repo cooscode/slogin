@@ -38,7 +38,6 @@ async def login(username, password, panel):
 
         await page.waitForSelector('#id_username', {'visible': True, 'timeout': 10000})
         await page.waitForSelector('#id_password', {'visible': True, 'timeout': 10000})
-        await page.waitForSelector('button.button--primary', {'visible': True, 'timeout': 10000})
 
         # 清空旧值（可选）
         await page.evaluate('''() => {
@@ -49,7 +48,9 @@ async def login(username, password, panel):
         await page.type('#id_username', username)
         await page.type('#id_password', password)
 
-        await page.click('button.button--primary')
+        await page.evaluate('''() => {
+            document.querySelector('form[data-login-form]').submit();
+        }''')
 
         await page.waitForNavigation({'waitUntil': 'networkidle2', 'timeout': 15000})
 
