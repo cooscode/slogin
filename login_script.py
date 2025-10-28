@@ -36,14 +36,14 @@ async def login(username, password, panel):
         url = f'https://{panel}/login/?next=/'
         await page.goto(url)
 
-        username_input = await page.querySelector('button.button--primary', {'timeout': 10000})
+        username_input = await page.querySelector('#id_username')
         if username_input:
             await page.evaluate('''(input) => input.value = ""''', username_input)
 
         await page.type('#id_username', username)
         await page.type('#id_password', password)
 
-        login_button = await page.querySelector('#submit')
+        login_button = await page.querySelector('button.button--primary')
         if login_button:
             await login_button.click()
         else:
